@@ -11,4 +11,5 @@ function solution(number) {
   }
   for (let i = 1; i <= threes; i++) multiplesArray.push(i*3)
 
+  return multiplesArray.reduce((acc, val) => {return acc + val}, 0)
 }
