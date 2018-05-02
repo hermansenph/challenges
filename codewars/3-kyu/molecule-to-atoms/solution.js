@@ -2,13 +2,19 @@ function parseMolecule(formula) {
   console.log('input:', formula)
   let i = 0
 
+  function isLowerCase(index) {
+    const char = formula.charCodeAt(index)
+    if (char >= 97 && char <= 122) return true
+    return false
+  }
+
   function countAtoms(parent) {
     parent = parent || {}
     let atomRow = {}
 
     for (; i < formula.length; i++) {
       const currentVal = formula.charAt(i)
-      const nextCharCode = formula.charCodeAt(i + 1)
+      const nextVal = formula.charAt(i + 1)
       let bonusInc = 0
 
       if (currentVal === '(' || currentVal === '{' || currentVal === '[') {
@@ -18,14 +24,14 @@ function parseMolecule(formula) {
       }
       else if (currentVal === ')' || currentVal === '}' || currentVal === ']') {
         Object.keys(atomRow).map((molecule) => {
-          atomRow[molecule] = atomRow[molecule] * formula.charAt(i + 1)
+          atomRow[molecule] = atomRow[molecule] * nextVal
         })
         i++
         break
       }
       else if (isNaN(currentVal)) {
-        if (nextCharCode >= 97 && nextCharCode <= 122) {
-          atomRow[currentVal + formula.charAt(i + 1)] = 1
+        if (isLowerCase(i + 1)) {
+          atomRow[currentVal + nextVal] = 1
           i++
           continue
         }
@@ -33,6 +39,16 @@ function parseMolecule(formula) {
       }
 
       if (!isNaN(currentVal)) {
+        if (!isNaN(nextVal)) {
+          let molecule = formula.charAt(i - 1)
+          if (isLowerCase(i - 1)) {
+            molecule = formula.charAt(i - 2) + formula.charAt(i - 1)
+            atomRow[molecule] = atomRow[molecule] * (currentVal + '' + nextVal)
+          }
+          else atomRow[molecule] = atomRow[molecule] * (currentVal + '' + nextVal)
+          i++
+          continue
+        }
         atomRow[formula.charAt(i - 1)] = atomRow[formula.charAt(i - 1)] * currentVal
       }
 
