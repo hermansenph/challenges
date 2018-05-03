@@ -8,6 +8,36 @@ function parseMolecule(formula) {
     return false
   }
 
+  function assignAtom(atom, num, object) {
+    console.log(atom, num, init)
+    if (object[atom]) {
+      object[atom] = object[atom] + num
+    }
+    else object[atom] = num
+  }
+
+  function multiplyAtomBy(inc) {
+    if (!isNaN(formula.charAt(inc + 1))) {
+      i++
+      if (!isNaN(formula.charAt(inc + 2))) {
+        i++
+        return formula.charAt(inc + 1) + '' + formula.charAt(inc + 2)
+      }
+      return formula.charAt(inc + 1)
+    }
+    if (isLowerCase(formula.charAt(inc + 1))) {
+      if (!isNaN(formula.charAt(inc + 2))) {
+        i++
+        if (!isNaN(formula.charAt(inc + 3))) {
+          i++
+          return formula.charAt(inc + 2) + '' + formula.charAt(inc + 3)
+        }
+        return formula.charAt(inc + 2)
+      }
+    }
+    return 1
+  }
+
   function countAtoms(parent) {
     parent = parent || {}
     let atomRow = {}
@@ -15,7 +45,7 @@ function parseMolecule(formula) {
     for (; i < formula.length; i++) {
       const currentVal = formula.charAt(i)
       const nextVal = formula.charAt(i + 1)
-      let bonusInc = 0
+      const init = i
 
       if (currentVal === '(' || currentVal === '{' || currentVal === '[') {
         i++
@@ -23,33 +53,21 @@ function parseMolecule(formula) {
         continue
       }
       else if (currentVal === ')' || currentVal === '}' || currentVal === ']') {
-        Object.keys(atomRow).map((molecule) => {
-          atomRow[molecule] = atomRow[molecule] * nextVal
-        })
-        i++
+        if (!isNaN(nextVal)) {
+          Object.keys(atomRow).map((molecule) => {
+            atomRow[molecule] = atomRow[molecule] * multiplyAtomBy(i)
+          })
+          i++
+        }
         break
       }
       else if (isNaN(currentVal)) {
         if (isLowerCase(i + 1)) {
-          atomRow[currentVal + nextVal] = 1
+          assignAtom(formula.charAt(init) + formula.charAt(init + 1), multiplyAtomBy(i), atomRow)
           i++
           continue
         }
-        else atomRow[currentVal] = 1
-      }
-
-      if (!isNaN(currentVal)) {
-        if (!isNaN(nextVal)) {
-          let molecule = formula.charAt(i - 1)
-          if (isLowerCase(i - 1)) {
-            molecule = formula.charAt(i - 2) + formula.charAt(i - 1)
-            atomRow[molecule] = atomRow[molecule] * (currentVal + '' + nextVal)
-          }
-          else atomRow[molecule] = atomRow[molecule] * (currentVal + '' + nextVal)
-          i++
-          continue
-        }
-        atomRow[formula.charAt(i - 1)] = atomRow[formula.charAt(i - 1)] * currentVal
+        else assignAtom(formula.charAt(init), multiplyAtomBy(i), atomRow)
       }
 
     }
